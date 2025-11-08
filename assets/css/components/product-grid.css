@@ -42,3 +42,39 @@
   }
 }
 
+/* =====================================
+   📭 NO PRODUCTS FOUND — Haus of Crunch
+   ===================================== */
+
+.hoc-no-products-found {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: var(--hoc-space-2xl) var(--hoc-space-base);
+  text-align: center;
+  margin: 0 auto;
+}
+
+.hoc-no-products-found__message {
+  font-size: var(--hoc-font-size-base);
+  line-height: var(--hoc-line-height-base);
+  letter-spacing: var(--hoc-letter-base);
+  font-weight: var(--hoc-font-weight-regular);
+  color: var(--hoc-text-default);
+  margin: 0;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+/* Hide default WooCommerce no products found notice if it appears */
+.woocommerce-no-products-found {
+  display: none;
+}
+
+/* Ensure no products found message is centered in shop main area */
+.hoc-shop-main .hoc-no-products-found {
+  width: 100%;
+}
+

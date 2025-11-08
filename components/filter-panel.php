@@ -161,6 +161,19 @@ foreach (array_keys($active_filters) as $key) {
         <div class="hoc-filter-panel__section">
             <h3 class="hoc-filter-panel__title"><?php esc_html_e('COLLECTIONS', 'haus-of-crunch'); ?></h3>
             <ul class="hoc-filter-panel__list">
+                <?php 
+                // "All" link - resets all filters
+                // "All" is active when no filters are applied
+                $is_all_active = !$has_active_filters;
+                ?>
+                <li class="hoc-filter-panel__item">
+                    <a href="<?php echo esc_url($clear_url); ?>" 
+                       class="hoc-filter-panel__link <?php echo $is_all_active ? 'is-active' : ''; ?>"
+                       data-filter="all"
+                       data-value="">
+                        <?php esc_html_e('ALL', 'haus-of-crunch'); ?>
+                    </a>
+                </li>
                 <?php foreach ($categories as $category) : 
                     $is_active = isset($active_filters['product_cat']) && $active_filters['product_cat'] === $category->slug;
                     $filter_url = hoc_build_filter_url($current_url, 'product_cat', $category->slug, $is_active);

@@ -1,0 +1,139 @@
+/* ============================
+   📢 ANNOUNCEMENT BAR — Haus of Crunch
+   ============================ */
+
+/* ---------- ANNOUNCEMENT BAR CONTAINER ---------- */
+.hoc-announcement-bar {
+  width: 100%;
+  background-color: var(--hoc-bg-button-primary);
+  color: var(--hoc-text-primary-on-button);
+  padding: 8px 0;
+  font-size: var(--hoc-font-size-sm);
+  line-height: var(--hoc-line-height-sm);
+  letter-spacing: var(--hoc-letter-sm);
+  font-weight: var(--hoc-font-weight-medium);
+  text-align: center;
+  position: relative;
+  z-index: 1001;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.hoc-announcement-bar.hoc-announcement-bar--hidden {
+  display: none;
+}
+
+.hoc-announcement-bar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  gap: var(--hoc-space-md);
+}
+
+/* ---------- ANNOUNCEMENT CONTENT ---------- */
+.hoc-announcement-bar__content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hoc-announcement-bar__text,
+.hoc-announcement-bar__link {
+  display: inline-block;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.hoc-announcement-bar__link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.hoc-announcement-bar__link:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---------- CLOSE BUTTON ---------- */
+.hoc-announcement-bar__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+  margin-left: var(--hoc-space-sm);
+}
+
+.hoc-announcement-bar__close:hover {
+  opacity: 0.7;
+  transform: scale(1.1);
+}
+
+.hoc-announcement-bar__close:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.hoc-announcement-bar__close svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 640px) {
+  .hoc-announcement-bar {
+    padding: 8px 0;
+    font-size: var(--hoc-font-size-xs);
+    line-height: var(--hoc-line-height-xs);
+  }
+
+  .hoc-announcement-bar__inner {
+    padding-left: var(--hoc-space-md);
+    padding-right: var(--hoc-space-md);
+  }
+
+  .hoc-announcement-bar__close {
+    width: 20px;
+    height: 20px;
+    margin-left: var(--hoc-space-xs);
+  }
+
+  .hoc-announcement-bar__close svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* ---------- ACCESSIBILITY ---------- */
+.hoc-announcement-bar__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ---------- ANIMATION WHEN DISMISSED ---------- */
+.hoc-announcement-bar.hoc-announcement-bar--dismissing {
+  transform: translateY(-100%);
+  opacity: 0;
+  max-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+

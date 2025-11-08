@@ -8,6 +8,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Include Menu Walker Classes
+ */
+require_once get_template_directory() . '/inc/class-header-menu-walker.php';
+require_once get_template_directory() . '/inc/class-mobile-menu-walker.php';
+
+/**
  * Enqueue styles & scripts
  */
 function hoc_enqueue_assets() {
@@ -34,6 +40,8 @@ function hoc_enqueue_assets() {
     wp_enqueue_style( 'hoc-hero', $theme_dir . '/assets/css/components/hero.css', ['hoc-tokens', 'hoc-typography'], null );
     wp_enqueue_style( 'hoc-category-highlights', $theme_dir . '/assets/css/components/category-highlights.css', ['hoc-tokens', 'hoc-typography'], null );
     wp_enqueue_style( 'hoc-featured-products', $theme_dir . '/assets/css/components/featured-products.css', ['hoc-tokens', 'hoc-typography', 'hoc-product-grid'], null );
+    wp_enqueue_style( 'hoc-header', $theme_dir . '/assets/css/components/header.css', ['hoc-tokens', 'hoc-typography', 'hoc-base'], null );
+    wp_enqueue_style( 'hoc-announcement-bar', $theme_dir . '/assets/css/components/announcement-bar.css', ['hoc-tokens', 'hoc-typography', 'hoc-base'], null );
 
     // Main stylesheet
     wp_enqueue_style( 'hoc-style', get_stylesheet_uri(), ['hoc-base'], '0.1' );
@@ -72,7 +80,15 @@ add_action( 'wp_enqueue_scripts', 'hoc_enqueue_assets' );
  */
 function hoc_theme_setup() {
     add_theme_support( 'title-tag' );
-    add_theme_support( 'custom-logo' );
+    
+    // Custom logo support with flexible dimensions
+    add_theme_support( 'custom-logo', array(
+        'height'      => 40,
+        'width'       => 200,
+        'flex-height' => true,
+        'flex-width'  => true,
+    ) );
+    
     add_theme_support( 'post-thumbnails' );
     add_theme_support( 'woocommerce' );
     add_theme_support( 'html5', ['search-form', 'comment-form', 'comment-list', 'gallery', 'caption'] );
@@ -84,6 +100,55 @@ function hoc_theme_setup() {
     ]);
 }
 add_action( 'after_setup_theme', 'hoc_theme_setup' );
+
+/**
+ * Filter custom logo image attributes to ensure proper sizing
+ * This is cleaner than using !important in CSS
+ */
+function hoc_custom_logo_image_attributes( $attr, $attachment, $size ) {
+    // Only apply to custom logo
+    if ( isset( $attr['class'] ) && strpos( $attr['class'], 'custom-logo' ) !== false ) {
+        // Remove any inline width/height that WordPress might add
+        unset( $attr['width'] );
+        unset( $attr['height'] );
+    }
+    return $attr;
+}
+add_filter( 'wp_get_attachment_image_attributes', 'hoc_custom_logo_image_attributes', 10, 3 );
+
+/**
+ * Enable WooCommerce cart fragments for real-time cart updates
+ */
+function hoc_woocommerce_cart_fragments( $fragments ) {
+    if ( ! class_exists( 'WooCommerce' ) ) {
+        return $fragments;
+    }
+
+    $cart_count = 0;
+    if ( ! is_null( WC()->cart ) ) {
+        $cart_count = WC()->cart->get_cart_contents_count();
+    }
+
+    // Update cart count wrapper in header
+    ob_start();
+    ?>
+    <?php if ( $cart_count > 0 ) : ?>
+        <span class="hoc-header__cart-count" aria-hidden="true">
+            <?php echo esc_html( $cart_count ); ?>
+        </span>
+        <span class="hoc-header__sr-only">
+            <?php 
+            /* translators: %d: number of items in cart */
+            printf( esc_html( _n( '%d item in cart', '%d items in cart', $cart_count, 'haus-of-crunch' ) ), $cart_count ); 
+            ?>
+        </span>
+    <?php endif; ?>
+    <?php
+    $fragments['.hoc-header__cart-count-wrapper'] = ob_get_clean();
+
+    return $fragments;
+}
+add_filter( 'woocommerce_add_to_cart_fragments', 'hoc_woocommerce_cart_fragments' );
 
 /**
  * Helper: Load component template
@@ -131,6 +196,18 @@ function hoc_custom_shop_loop() {
 
     return ob_get_clean();
 }
+
+/**
+ * Remove WooCommerce result count and sorting panel from shop page
+ * Creates a clean shop page without result count or sorting dropdown
+ */
+function hoc_remove_shop_result_count_and_sorting() {
+    if ( is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy() ) {
+        remove_action( 'woocommerce_before_shop_loop', 'woocommerce_result_count', 20 );
+        remove_action( 'woocommerce_before_shop_loop', 'woocommerce_catalog_ordering', 30 );
+    }
+}
+add_action( 'wp', 'hoc_remove_shop_result_count_and_sorting' );
 
 /**
  * Remove WooCommerce default link wrappers from product loop
@@ -791,5 +868,102 @@ function hoc_customize_register( $wp_customize ) {
         ),
         'description' => __( 'Number of featured products to display (max 50)', 'haus-of-crunch' ),
     ) );
+
+    // Add "Announcement Bar" section
+    $wp_customize->add_section( 'hoc_announcement_bar', array(
+        'title'    => __( 'Announcement Bar', 'haus-of-crunch' ),
+        'priority' => 25,
+    ) );
+
+    // Announcement Bar Enabled Setting
+    $wp_customize->add_setting( 'hoc_announcement_enabled', array(
+        'default'           => false,
+        'sanitize_callback' => 'wp_validate_boolean',
+        'transport'         => 'refresh',
+    ) );
+
+    // Announcement Bar Enabled Control
+    $wp_customize->add_control( 'hoc_announcement_enabled', array(
+        'label'    => __( 'Enable Announcement Bar', 'haus-of-crunch' ),
+        'section'  => 'hoc_announcement_bar',
+        'type'     => 'checkbox',
+        'priority' => 10,
+    ) );
+
+    // Announcement Bar Text Setting
+    $wp_customize->add_setting( 'hoc_announcement_text', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ) );
+
+    // Announcement Bar Text Control
+    $wp_customize->add_control( 'hoc_announcement_text', array(
+        'label'       => __( 'Announcement Text', 'haus-of-crunch' ),
+        'section'     => 'hoc_announcement_bar',
+        'type'        => 'text',
+        'priority'    => 20,
+        'description' => __( 'Enter the announcement message to display', 'haus-of-crunch' ),
+    ) );
+
+    // Announcement Bar Link Setting
+    $wp_customize->add_setting( 'hoc_announcement_link', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ) );
+
+    // Announcement Bar Link Control
+    $wp_customize->add_control( 'hoc_announcement_link', array(
+        'label'       => __( 'Announcement Link (Optional)', 'haus-of-crunch' ),
+        'section'     => 'hoc_announcement_bar',
+        'type'        => 'url',
+        'priority'    => 30,
+        'description' => __( 'Optional: Add a URL to make the announcement clickable', 'haus-of-crunch' ),
+    ) );
+
+    // Announcement Bar Dismissible Setting
+    $wp_customize->add_setting( 'hoc_announcement_dismissible', array(
+        'default'           => false,
+        'sanitize_callback' => 'wp_validate_boolean',
+        'transport'         => 'refresh',
+    ) );
+
+    // Announcement Bar Dismissible Control
+    $wp_customize->add_control( 'hoc_announcement_dismissible', array(
+        'label'       => __( 'Allow Users to Dismiss', 'haus-of-crunch' ),
+        'section'     => 'hoc_announcement_bar',
+        'type'        => 'checkbox',
+        'priority'    => 40,
+        'description' => __( 'Show a close button so users can dismiss the announcement', 'haus-of-crunch' ),
+    ) );
+
+    // Announcement Bar Background Color Setting
+    $wp_customize->add_setting( 'hoc_announcement_bg_color', array(
+        'default'           => '#111111',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ) );
+
+    // Announcement Bar Background Color Control
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'hoc_announcement_bg_color', array(
+        'label'    => __( 'Background Color', 'haus-of-crunch' ),
+        'section'  => 'hoc_announcement_bar',
+        'priority' => 50,
+    ) ) );
+
+    // Announcement Bar Text Color Setting
+    $wp_customize->add_setting( 'hoc_announcement_text_color', array(
+        'default'           => '#ffffff',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ) );
+
+    // Announcement Bar Text Color Control
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'hoc_announcement_text_color', array(
+        'label'    => __( 'Text Color', 'haus-of-crunch' ),
+        'section'  => 'hoc_announcement_bar',
+        'priority' => 60,
+    ) ) );
 }
 add_action( 'customize_register', 'hoc_customize_register' );

@@ -35,7 +35,7 @@
   /* ---------- FONT SIZES (Desktop: 1024px+) ---------- */
   --hoc-font-size-xs-desktop: 0.875rem;    /* 14px */
   --hoc-font-size-sm-desktop: 1rem;        /* 16px - matches example 1 */
-  --hoc-font-size-base-desktop: 1rem;      /* 16px */
+  --hoc-font-size-base-desktop: 0.938rem;  /* 15px */
   --hoc-font-size-md-desktop: 1.125rem;    /* 18px */
   --hoc-font-size-lg-desktop: 1.25rem;     /* 20px */
   --hoc-font-size-xl-desktop: 1.5rem;      /* 24px - matches example 2 */
@@ -60,7 +60,7 @@
   /* ---------- LINE HEIGHTS (Desktop) ---------- */
   --hoc-line-height-xs-desktop: 0.875rem;
   --hoc-line-height-sm-desktop: 1rem;
-  --hoc-line-height-base-desktop: 1rem;
+  --hoc-line-height-base-desktop: 0.938rem;
   --hoc-line-height-md-desktop: 1.125rem;
   --hoc-line-height-lg-desktop: 1.25rem;
   --hoc-line-height-xl-desktop: 1.5rem;

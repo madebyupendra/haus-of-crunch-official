@@ -7,35 +7,66 @@
   position: relative;
 }
 
-/* Mobile Filter Toggle Button */
+/* Mobile Filter Toggle Link */
 .hoc-filter-toggle {
   display: none;
-  width: 100%;
-  padding: 1rem;
-  background: var(--hoc-bg-default);
-  border: 1px solid var(--hoc-border-default);
+  width: auto;
+  padding: 0;
+  background: transparent;
+  border: none;
   font-size: var(--hoc-font-size-base);
   line-height: var(--hoc-line-height-base);
   letter-spacing: var(--hoc-letter-base);
   font-weight: var(--hoc-font-weight-medium);
   text-transform: uppercase;
   color: var(--hoc-text-default);
+  text-decoration: none;
   cursor: pointer;
-  margin-bottom: 1.5rem;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  margin: 0 0 1rem 0;
+  transition: color 0.2s ease;
+  align-items: center;
+  gap: 0.125rem;
+  justify-content: flex-start;
 }
 
 .hoc-filter-toggle:hover {
-  background: var(--hoc-bg-secondary);
+  color: var(--hoc-text-default);
 }
 
-.hoc-filter-toggle[aria-expanded="true"] {
-  border-color: var(--hoc-text-default);
+.hoc-filter-toggle__text {
+  display: inline-block;
+}
+
+.hoc-filter-toggle__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s ease;
+  margin-left: 0;
+  flex-shrink: 0;
+}
+
+.hoc-filter-toggle__icon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.hoc-filter-toggle[aria-expanded="true"] .hoc-filter-toggle__icon {
+  transform: rotate(180deg);
 }
 
 @media (max-width: 640px) {
   .hoc-filter-toggle {
-    display: block;
+    display: flex;
+  }
+}
+
+@media (min-width: 641px) {
+  .hoc-filter-toggle {
+    display: none;
   }
 }
 
@@ -48,25 +79,33 @@
 
 .hoc-shop-sidebar {
   position: sticky;
-  top: 2rem;
-  max-height: calc(100vh - 4rem);
-  overflow-y: auto;
+  top: 4rem;
+  /* Alternative: top: var(--hoc-header-height, 4rem); - Use CSS variable for better maintainability */
 }
 
 .hoc-shop-main {
-  min-width: 0; /* Prevents grid overflow */
+  min-width: 0;
 }
 
 /* Mobile: Stack layout */
 @media (max-width: 640px) {
   .hoc-shop-layout {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 0;
   }
 
   .hoc-shop-sidebar {
     position: static;
-    max-height: none;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
+  }
+
+  .hoc-shop-sidebar.is-open {
+    max-height: 2000px; /* Large enough for filter content */
+    opacity: 1;
+    margin-bottom: 1.5rem;
   }
 }
 
